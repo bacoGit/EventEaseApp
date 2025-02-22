@@ -1,0 +1,22 @@
+@code {
+        [Parameter]
+        public Event Event { get; set; }
+
+        private void NavigateToEventForm()
+        {
+            NavigationManager.NavigateTo($"/eventform/{Event.Id}");
+        }
+
+        [Inject]
+        private NavigationManager NavigationManager { get; set; }
+    }
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Event @Event.Name</h5>
+        <h6 class="card-subtitle mb-2 text-muted">Date @Event.Date</h6>
+        <p class="card-text">Location @Event.Location</p>
+    <div class="card-footer"></div>
+        <button class="btn btn-primary" @onclick="NavigateToEventForm">Edit Event</button>
+    </div>
+</div>

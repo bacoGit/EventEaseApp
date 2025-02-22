@@ -1,0 +1,82 @@
+@page "/eventform/{Id:int?}"
+
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager Navigation
+@using System.Text.Json
+@using Blazored.LocalStorage
+@inject ILocalStorageService _localstorage;
+
+<h3>Event Form</h3>
+
+<EditForm Model="@eventModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label for="title">Title:</label>
+        <InputText id="title" @bind-Value="eventModel.Title" />
+        <ValidationMessage For="@(() => eventModel.Title)" />
+    </div>
+
+    <div>
+        <label for="date">Date:</label>
+        <InputDate id="date" @bind-Value="eventModel.Date" />
+        <ValidationMessage For="@(() => eventModel.Date)" />
+    </div>
+
+    <div>
+        <label for="location">Location:</label>
+        <InputText id="location" @bind-Value="eventModel.Location" />
+        <ValidationMessage For="@(() => eventModel.Location)" />
+    </div>
+
+    <div>
+        <label for="description">Description:</label>
+        <InputTextArea id="description" @bind-Value="eventModel.Description" />
+        <ValidationMessage For="@(() => eventModel.Description)" />
+    </div>
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private Event eventModel = new Event();
+
+    private void HandleValidSubmit()
+    {
+        // Handle the form submission, e.g., save the event to a database
+        Navigation.NavigateTo("/eventlist");
+    }
+
+    private List<Event> events = new List<Event>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var json = await _localstorage.GetItemAsStringAsync("events");
+        if (!string.IsNullOrEmpty(json?.ToString()))
+        {
+            events = JsonSerializer.Deserialize<List<Event>>(json) ?? new List<Event>();
+            eventModel = events?.Find(e => e.Id == Id) ?? new Event();
+        }
+    }
+
+    public class Event
+    {
+
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Title is required")]
+        public string Title { get; set; }
+
+        [Required(ErrorMessage = "Date is required")]
+        public DateTime Date { get; set; }
+
+        [Required(ErrorMessage = "Location is required")]
+        public string Location { get; set; }
+
+        [Required(ErrorMessage = "Description is required")]
+        public string Description { get; set; }
+    }
+}
